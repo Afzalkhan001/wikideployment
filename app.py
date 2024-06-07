@@ -5,8 +5,7 @@ from PIL import Image
 import google.generativeai as genai
 from gtts import gTTS
 import base64
-import sounddevice as sd
-import numpy as np
+import speech_recognition as sr
 from googletrans import Translator
 
 # Load environment variables from .env file
@@ -104,14 +103,6 @@ def language_code(language_name):
     }
     return language_codes.get(language_name, "en")
 
-# Function to record audio
-def record_audio(duration=5, fs=44100):
-    st.write("Recording...")
-    audio = sd.rec(int(duration * fs), samplerate=fs, channels=2, dtype='float64')
-    sd.wait()  # Wait until recording is finished
-    st.write("Recording finished")
-    return audio
-
 # Initialize Streamlit app
 st.set_page_config(page_title="Wikiwizard")
 
@@ -140,14 +131,19 @@ else:
 language = st.selectbox("Select Language", ["English", "Spanish", "French", "Hindi", "Telugu", "Chinese (Simplified)", "Arabic", "Bengali", "Russian", "Portuguese", "Japanese"])
 
 # Voice input section
+recognizer = sr.Recognizer()
 voice_input = None
-if st.button("Record Voice"):
-    audio = record_audio()
-    st.write("Voice recording captured. Processing...")
-
-    # Here you would convert the audio to text using a suitable method
-    # For example, saving the audio and using Google Speech-to-Text API
-    # Implement this part as per your requirements
+if st.button("Speak"):
+    with sr.Microphone() as source:
+        st.write("Listening...")
+        audio = recognizer.listen(source)
+        try:
+            voice_input = recognizer.recognize_google(audio)
+            st.write(f"Recognized: {voice_input}")
+        except sr.UnknownValueError:
+            st.error("Google Speech Recognition could not understand the audio")
+        except sr.RequestError as e:
+            st.error(f"Could not request results from Google Speech Recognition service; {e}")
 
 # Submit button
 submit = st.button("Ask the question")
