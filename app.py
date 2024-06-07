@@ -6,7 +6,6 @@ import google.generativeai as genai
 from gtts import gTTS
 import base64
 from googletrans import Translator
-import streamlit.components.v1 as components
 
 # Load environment variables from .env file
 load_dotenv()
@@ -130,41 +129,14 @@ else:
 # Language selection
 language = st.selectbox("Select Language", ["English", "Spanish", "French", "Hindi", "Telugu", "Chinese (Simplified)", "Arabic", "Bengali", "Russian", "Portuguese", "Japanese"])
 
-# Voice input section
-voice_input = st.text_area("Voice Input", height=100)
-st.markdown("""
-<script>
-function startDictation() {
-  if (window.hasOwnProperty('webkitSpeechRecognition')) {
-    var recognition = new webkitSpeechRecognition();
-
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    recognition.lang = "en-US";
-    recognition.start();
-
-    recognition.onresult = function(e) {
-      document.getElementById('voice-input').value = e.results[0][0].transcript;
-      recognition.stop();
-    };
-
-    recognition.onerror = function(e) {
-      recognition.stop();
-    };
-  }
-}
-</script>
-<button onclick="startDictation()">Speak</button>
-""", unsafe_allow_html=True)
-
 # Submit button
 submit = st.button("Ask the question")
 generate_voice_output = st.checkbox("Generate Voice Output")
 
 # Handle submission
-if submit or voice_input:
+if submit:
     response_text = ""
-    query = voice_input if voice_input else input_text
+    query = input_text
 
     if image:
         # Handle text + image query
