@@ -1,0 +1,8 @@
+streamlit
+python-dotenv
+pillow
+google-generativeai
+gtts
+googletrans==4.0.0-rc1
+sounddevice
+numpy
