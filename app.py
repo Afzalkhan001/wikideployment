@@ -5,8 +5,8 @@ from PIL import Image
 import google.generativeai as genai
 from gtts import gTTS
 import base64
-import speech_recognition as sr
 from googletrans import Translator
+import streamlit.components.v1 as components
 
 # Load environment variables from .env file
 load_dotenv()
@@ -131,19 +131,31 @@ else:
 language = st.selectbox("Select Language", ["English", "Spanish", "French", "Hindi", "Telugu", "Chinese (Simplified)", "Arabic", "Bengali", "Russian", "Portuguese", "Japanese"])
 
 # Voice input section
-recognizer = sr.Recognizer()
-voice_input = None
-if st.button("Speak"):
-    with sr.Microphone() as source:
-        st.write("Listening...")
-        audio = recognizer.listen(source)
-        try:
-            voice_input = recognizer.recognize_google(audio)
-            st.write(f"Recognized: {voice_input}")
-        except sr.UnknownValueError:
-            st.error("Google Speech Recognition could not understand the audio")
-        except sr.RequestError as e:
-            st.error(f"Could not request results from Google Speech Recognition service; {e}")
+voice_input = st.text_area("Voice Input", height=100)
+st.markdown("""
+<script>
+function startDictation() {
+  if (window.hasOwnProperty('webkitSpeechRecognition')) {
+    var recognition = new webkitSpeechRecognition();
+
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = "en-US";
+    recognition.start();
+
+    recognition.onresult = function(e) {
+      document.getElementById('voice-input').value = e.results[0][0].transcript;
+      recognition.stop();
+    };
+
+    recognition.onerror = function(e) {
+      recognition.stop();
+    };
+  }
+}
+</script>
+<button onclick="startDictation()">Speak</button>
+""", unsafe_allow_html=True)
 
 # Submit button
 submit = st.button("Ask the question")
